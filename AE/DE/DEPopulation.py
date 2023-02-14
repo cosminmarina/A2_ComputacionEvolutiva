@@ -2,8 +2,8 @@ import random
 import numpy as np
 from numba import jit
 from copy import deepcopy
-from ..Individual import *
-from ...ParamScheduler import ParamScheduler
+from AE.Individual import *
+from A2_ComputacionEvolutiva.ParamScheduler import ParamScheduler
 
 """
 Population of individuals
