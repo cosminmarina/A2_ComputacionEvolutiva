@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from numba import jit
 from ObjectiveFunc import ObjectiveFunc
 
 
@@ -18,8 +17,8 @@ class SumPowell(ObjectiveFunc):
     def objective(self, solution):
         return (solution**np.arange(2,solution.shape[0]+2)).sum()
     
-    def random_solution(self):
-        return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
+    def random_solution(self, lim_min=self.lim_min, lim_max=self.lim_max):
+        return np.random.random(self.size) * (lim_max - lim_min) - lim_min
     
     def check_bounds(self, solution, parent=None):
         # bounce back method
@@ -49,8 +48,8 @@ class N4XinSheYang(ObjectiveFunc):
         sum_2 = np.e ** -(np.sin(np.sqrt(np.abs(solution)))**2).sum()
         return (np.sin(solution)**2 - sum_1).sum() * sum_2
     
-    def random_solution(self):
-        return np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
+    def random_solution(self, lim_min=self.lim_min, lim_max=self.lim_max):
+        return np.random.random(self.size) * (lim_max - lim_min) - lim_min
     
     def check_bounds(self, solution, parent=None):
         # bounce back method
