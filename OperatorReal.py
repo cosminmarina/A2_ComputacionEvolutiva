@@ -15,7 +15,7 @@ class OperatorReal(Operator):
         self.name = name
         super().__init__(self.name, params)
     
-    def evolve(self, solution, population, objfunc):
+    def evolve(self, solution, population, objfunc, sigmas=None, pos=0):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
@@ -33,7 +33,10 @@ class OperatorReal(Operator):
         elif self.name == "Perm":
             result = permutation(solution.vector.copy(), self.params["N"])
         elif self.name == "Gauss":
-            result = gaussian(solution.vector.copy(), self.params["F"])
+            if sigmas:
+                result = gaussian(solution.vector.copy(), sigmas[pos])
+            else:
+                result = gaussian(solution.vector.copy(), self.params["F"])
         elif self.name == "Uniform":
             result = uniform(solution.vector.copy(), self.params["Low"], self.params["Up"])
         elif self.name == "MutRand":

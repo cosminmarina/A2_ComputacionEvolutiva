@@ -15,7 +15,7 @@ class SumPowell(ObjectiveFunc):
         super().__init__(self.size, opt, "Sum Powell")
 
     def objective(self, solution):
-        return (solution**np.arange(2,solution.shape[0]+2)).sum()
+        return (np.abs(solution)**np.arange(2,solution.shape[0]+2)).sum()
     
     def random_solution(self, lim_min=None, lim_max=None):
         if not lim_min:
@@ -35,7 +35,7 @@ class SumPowell(ObjectiveFunc):
         # random in range
         else:
             mask = (solution < self.lim_min) | (solution > self.lim_max)
-            solution[mask] = np.random.random(self.size) * (self.lim_max - self.lim_min) - self.lim_min
+            solution[mask] = np.random.random(len(mask[mask==True])) * (self.lim_max - self.lim_min) - self.lim_min
         return solution
 
 class N4XinSheYang(ObjectiveFunc):

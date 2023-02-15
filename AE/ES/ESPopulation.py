@@ -12,7 +12,7 @@ class ESPopulation:
     """
     Constructor of the Population class
     """
-    def __init__(self, objfunc, mutation_op, cross_op, parent_sel_op, replace_op, params, population=None):
+    def __init__(self, objfunc, mutation_op, cross_op, parent_sel_op, replace_op, params, population=None, sigmas=None):
         self.params = params
 
         # Hyperparameters of the algorithm
@@ -32,6 +32,30 @@ class ESPopulation:
         else:
             self.population = population
         self.offspring = []
+
+        # Step size parameters = sigma(s)
+        if sigmas is None:
+            self.sigmas = []
+        else:
+            self.sigmas = sigmas
+        self.sigma_type = params["sigma_type"]
+        if "max_sigma" in params:
+            self.max_sigma = params["max_sigma"]
+        else:
+            self.max_sigma = 1
+        self.offspring_sigmas = []
+        if "tau" in params:
+            self.tau = params["tau"]
+        else:
+            self.tau = 1/np.sqrt(self.objfunc.size) if self.sigma_type == "1stepsize" else 1/np.sqrt(2*self.objfunc.size)
+        if "epsilon" in params:
+            self.epsilon = params["epsilon"]
+        else:
+            self.epsilon = 1e-6
+        if "tau_multiple" in params:
+            self.tau_multiple = params["tau_multiple"]
+        else:
+            self.tau_multiple = 1/np.sqrt(2*np.sqrt(self.objfunc.size))
 
     def step(self, progress):
         self.mutation_op.step(progress)
@@ -59,9 +83,17 @@ class ESPopulation:
     """
     def generate_random(self):
         self.population = []
+        self.sigmas = []
         for i in range(self.size):
             new_ind = Indiv(self.objfunc, self.objfunc.random_solution())
             self.population.append(new_ind)
+            if self.sigma_type == "1stepsize":
+                new_sigma = self.objfunc.random_solution(0,self.max_sigma)
+                self.sigmas.append(new_sigma)
+            elif self.sigma_type == "nstepsize":
+                new_sigmas = [self.objfunc.random_solution(0,self.max_sigma) for i in range(self.objfunc.size)]
+                self.sigmas.append(new_sigmas)
+        
     
     """
     Crosses individuals of the population
@@ -71,10 +103,13 @@ class ESPopulation:
 
         self.offspring = []
         while len(self.offspring) < self.n_offspring:
-            parent1 = random.choice(parent_list)
+            parent_idx = np.random.choice(np.arange(self.size))
+            parent1 = parent_list[parent_idx]
             new_solution = self.cross_op(parent1, parent_list, self.objfunc)
             new_ind = Indiv(self.objfunc, new_solution)
             self.offspring.append(Indiv(self.objfunc, new_solution))
+            self.offspring_sigmas.append(self.sigmas[parent_idx])
+
             
 
     """
@@ -82,9 +117,20 @@ class ESPopulation:
     """
     def mutate(self):
         for idx, ind in enumerate(self.offspring):
-            new_solution = self.mutation_op(ind, self.population, self.objfunc)
+            self.offspring_sigmas[idx] = self.mutate_sigma(self.offspring_sigmas[idx])
+            new_solution = self.objfunc.check_bounds(self.mutation_op(ind, self.population, self.objfunc, self.offspring_sigmas, idx))
             self.offspring[idx] = Indiv(self.objfunc, new_solution)
-    
+            
+    """
+    Applies a random mutation to sigma
+    """
+    def mutate_sigma(self, sigma):
+        if self.sigma_type == "1stepsize":
+            return max(self.epsilon, np.exp(self.tau * np.random.normal()))
+        elif self.sigma_type == "nstepsize":
+            base_tau = self.tau * np.random.normal()
+            return [max(self.epsilon, sigma[i] * np.exp(base_tau + self.tau_multiple * np.random.random())) for i in range(len(sigma))]
+
     """
     Removes the worse solutions of the population
     """

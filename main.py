@@ -18,6 +18,7 @@ def run_algorithm(alg_name):
 
         # Evolution strategy
         "offspringSize":500,
+        "sigma_type":"1stepsize",
 
         # General
         "stop_cond": "ngen",
