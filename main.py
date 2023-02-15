@@ -18,7 +18,7 @@ def run_algorithm(alg_name):
 
         # Evolution strategy
         "offspringSize":500,
-        "sigma_type":"nstepsize",
+        "sigma_type":"1stepsize",
         #"tau":1/np.sqrt(10),
 
         # General

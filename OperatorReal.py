@@ -31,14 +31,17 @@ class OperatorReal(Operator):
         elif self.name == "Multicross":
             result = multiCross(solution.vector.copy(), others, self.params["N"])
         elif self.name == "CrossDiscrete":
-            result = crossDiscrete(solution.vector.copy(), others, self.params["N"])
+            if sigmas:
+                result = crossDiscrete(sigmas[pos].copy(), sigmas, self.params["N"])
+            else:
+                result = crossDiscrete(solution.vector.copy(), others, self.params["N"])
         elif self.name == "CrossInterAvg":
             result = crossInterAvg(solution.vector.copy(), others, self.params["N"])
         elif self.name == "Perm":
             result = permutation(solution.vector.copy(), self.params["N"])
         elif self.name == "Gauss":
             if sigmas:
-                result = gaussian(solution.vector.copy(), sigmas[pos])
+                result = gaussian(solution.vector.copy(), sigmas[pos].copy())
             else:
                 result = gaussian(solution.vector.copy(), self.params["F"])
         elif self.name == "Uniform":
