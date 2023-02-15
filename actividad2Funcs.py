@@ -17,12 +17,16 @@ class SumPowell(ObjectiveFunc):
     def objective(self, solution):
         return (np.abs(solution)**np.arange(2,solution.shape[0]+2)).sum()
     
-    def random_solution(self, lim_min=None, lim_max=None):
+    def random_solution(self, lim_min=None, lim_max=None, different_size=None):
         if not lim_min:
             lim_min = self.lim_min
         if not lim_max:
             lim_max = self.lim_max
-        return np.random.random(self.size) * (lim_max - lim_min) - lim_min
+        if different_size:
+            size = different_size
+        else:
+            size = self.size
+        return np.random.random(size) * (lim_max - lim_min) - lim_min
             
     
     def check_bounds(self, solution, parent=None):

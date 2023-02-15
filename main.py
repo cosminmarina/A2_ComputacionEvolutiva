@@ -18,12 +18,13 @@ def run_algorithm(alg_name):
 
         # Evolution strategy
         "offspringSize":500,
-        "sigma_type":"1stepsize",
+        "sigma_type":"nstepsize",
+        #"tau":1/np.sqrt(10),
 
         # General
         "stop_cond": "ngen",
         "time_limit": 20.0,
-        "Ngen": 200,
+        "Ngen": 300,
         "Neval": 1e5,
         "fit_target": 1000,
 

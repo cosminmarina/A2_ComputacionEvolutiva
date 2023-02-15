@@ -51,7 +51,7 @@ class ESPopulation:
         if "epsilon" in params:
             self.epsilon = params["epsilon"]
         else:
-            self.epsilon = 1e-6
+            self.epsilon = 1e-17
         if "tau_multiple" in params:
             self.tau_multiple = params["tau_multiple"]
         else:
@@ -88,10 +88,10 @@ class ESPopulation:
             new_ind = Indiv(self.objfunc, self.objfunc.random_solution())
             self.population.append(new_ind)
             if self.sigma_type == "1stepsize":
-                new_sigma = self.objfunc.random_solution(0,self.max_sigma)
+                new_sigma = self.objfunc.random_solution(0,self.max_sigma,1)
                 self.sigmas.append(new_sigma)
             elif self.sigma_type == "nstepsize":
-                new_sigmas = [self.objfunc.random_solution(0,self.max_sigma) for i in range(self.objfunc.size)]
+                new_sigmas = self.objfunc.random_solution(0,self.max_sigma)
                 self.sigmas.append(new_sigmas)
         
     
@@ -110,8 +110,6 @@ class ESPopulation:
             self.offspring.append(Indiv(self.objfunc, new_solution))
             self.offspring_sigmas.append(self.sigmas[parent_idx])
 
-            
-
     """
     Applies a random mutation to a small portion of individuals
     """
@@ -129,7 +127,8 @@ class ESPopulation:
             return max(self.epsilon, np.exp(self.tau * np.random.normal()))
         elif self.sigma_type == "nstepsize":
             base_tau = self.tau * np.random.normal()
-            return [max(self.epsilon, sigma[i] * np.exp(base_tau + self.tau_multiple * np.random.random())) for i in range(len(sigma))]
+            new_sigmas = np.array([sigma[i] * np.exp(base_tau + self.tau_multiple * np.random.normal()) for i in range(len(sigma))])
+            return list(np.vectorize((lambda sigma_i: max(self.epsilon,sigma_i))) (new_sigmas))
 
     """
     Removes the worse solutions of the population
