@@ -85,6 +85,21 @@ def gaussian(vector, strength):
 def uniform(vector, low, up):
     return randNoise(vector, {"method":"Uniform", "Low":low, "Up":up})
 
+def crossDiscrete(vector, population, n):
+    result = np.copy(vector)
+    other_parents = np.random.choice(population, n-1, replace=False)
+    discretization = np.random.randint(0,n,len(vector)) - 1
+    for i in np.arange(n-1):
+        result[discretization==i] = other_parents[i].vector[discretization==i]
+    return result
+
+
+def crossInterAvg(vector, population, n):
+    other_parents = np.random.choice(population, n-1, replace=False)
+    parents = [parent.vector for parent in other_parents]
+    parents.append(vector)
+    return np.mean(parents, axis=0)
+    
 
 def crossMp(vector1, vector2):
     mask_pos = 1*(np.random.rand(vector1.size) > 0.5)

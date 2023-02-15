@@ -46,7 +46,7 @@ def run_algorithm(alg_name):
 
     mutation_op = OperatorReal("Gauss", {"F": 0.001})
     # mutation_op = OperatorReal("Gauss", ParamScheduler("Lineal", {"F":[0.1, 0.001]}))
-    cross_op = OperatorReal("Multipoint")
+    cross_op = OperatorReal("CrossInterAvg", {"N": 5})
     # parent_select_op = ParentSelection("Tournament", {"amount": 3, "p":0.1})
     parent_select_op = ParentSelection("Tournament", ParamScheduler("Lineal", {"amount": [2, 7], "p":0.1}))
     replace_op = SurvivorSelection("(m+n)")

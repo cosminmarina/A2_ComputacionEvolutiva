@@ -30,6 +30,10 @@ class OperatorReal(Operator):
             result = crossMp(solution.vector.copy(), solution2.vector.copy())
         elif self.name == "Multicross":
             result = multiCross(solution.vector.copy(), others, self.params["N"])
+        elif self.name == "CrossDiscrete":
+            result = crossDiscrete(solution.vector.copy(), others, self.params["N"])
+        elif self.name == "CrossInterAvg":
+            result = crossInterAvg(solution.vector.copy(), others, self.params["N"])
         elif self.name == "Perm":
             result = permutation(solution.vector.copy(), self.params["N"])
         elif self.name == "Gauss":

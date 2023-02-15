@@ -105,7 +105,7 @@ class ESPopulation:
         while len(self.offspring) < self.n_offspring:
             parent_idx = np.random.choice(np.arange(self.size))
             parent1 = parent_list[parent_idx]
-            new_solution = self.cross_op(parent1, parent_list, self.objfunc)
+            new_solution = self.objfunc.check_bounds(self.cross_op(parent1, parent_list, self.objfunc))
             new_ind = Indiv(self.objfunc, new_solution)
             self.offspring.append(Indiv(self.objfunc, new_solution))
             self.offspring_sigmas.append(self.sigmas[parent_idx])
