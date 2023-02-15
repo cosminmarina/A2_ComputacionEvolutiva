@@ -49,7 +49,7 @@ def run_algorithm(alg_name):
     cross_op = OperatorReal("CrossInterAvg", {"N": 5})
     # parent_select_op = ParentSelection("Tournament", {"amount": 3, "p":0.1})
     parent_select_op = ParentSelection("Tournament", ParamScheduler("Lineal", {"amount": [2, 7], "p":0.1}))
-    replace_op = SurvivorSelection("(m+n)")
+    replace_op = SurvivorSelection("(m,n)")
 
     if alg_name == "ES":
         alg = ES(objfunc, mutation_op, cross_op, parent_select_op, replace_op, params)

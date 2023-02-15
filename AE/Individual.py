@@ -30,6 +30,9 @@ class Indiv:
         copied_ind.fitness_calculated = self.fitness_calculated
         copied_ind.best = copy(self.best)
         return copied_ind
+
+    def __lt__(self, other):
+        return self.fitness < other.fitness
     
     @property
     def vector(self):

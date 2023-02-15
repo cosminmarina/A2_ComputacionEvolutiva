@@ -134,5 +134,5 @@ class ESPopulation:
     Removes the worse solutions of the population
     """
     def selection(self):
-        self.population = self.replace_op(self.population, self.offspring)
+        self.population, self.sigmas = self.replace_op(self.population, self.offspring, self.sigmas, self.offspring_sigmas)
 

@@ -23,12 +23,12 @@ class SurvivorSelection:
         else:
             self.params = params
     
-    def __call__(self, popul, offspring):
+    def __call__(self, popul, offspring, sigma=None, sigma_offspring=None):
         """
         Shorthand for calling the 'select' method
         """
 
-        return self.select(popul, offspring)
+        return self.select(popul, offspring, sigma, sigma_offspring)
     
     def step(self, progress):
         """
@@ -40,7 +40,7 @@ class SurvivorSelection:
             self.params = self.param_scheduler.get_params()
     
     
-    def select(self, popul, offspring):     
+    def select(self, popul, offspring, sigma=None, sigma_offspring=None):     
         """
         Takes a population with its offspring and returns the individuals that survive
         to produce the next generation.
@@ -56,9 +56,9 @@ class SurvivorSelection:
         elif self.name == "One-to-one":
             result = one_to_one(popul, offspring)
         elif self.name == "(m+n)":
-            result = lamb_plus_mu(popul, offspring)
+            result = lamb_plus_mu(popul, offspring, sigma, sigma_offspring)
         elif self.name == "(m,n)":
-            result = lamb_comma_mu(popul, offspring)
+            result = lamb_comma_mu(popul, offspring, sigma, sigma_offspring)
             # divide in parts
         else:
             print(f"Error: parent selection method \"{self.name}\" not defined")
@@ -93,10 +93,13 @@ def cond_elitism(popul, offspring, amount):
     
     return new_offspring
 
-def lamb_plus_mu(popul, offspring):
+def lamb_plus_mu(popul, offspring, sigma, sigma_offspring):
     population = popul + offspring
-    return sorted(population, reverse=True, key = lambda x: x.fitness)[:len(popul)]
+    sigma_popul = sigma + sigma_offspring
+    idx = np.flip(np.argsort(population))
+    return list(np.array(population)[idx][:len(popul)]), list(np.array(sigma_popul)[idx][:len(popul)])
 
 
-def lamb_comma_mu(popul, offspring):
-    return sorted(offspring, reverse=True, key = lambda x: x.fitness)[:len(popul)]
+def lamb_comma_mu(popul, offspring, sigma, sigma_offspring):
+    idx = np.flip(np.argsort(offspring))
+    return list(np.array(offspring)[idx][:len(popul)]), list(np.array(sigma_offspring)[idx][:len(popul)])
