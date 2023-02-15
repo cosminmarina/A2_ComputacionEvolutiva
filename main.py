@@ -6,6 +6,39 @@ from ParamScheduler import *
 from actividad2Funcs import *
 
 import argparse
+from joblib import Parallel, delayed
+
+def generar_curva_progreso(evolucion_fitness, array_bars, pasos_intervalos, ngen, file_name):
+    fig = plt.figure()
+
+    x = np.arange(ngen)
+
+    plt.errorbar(x, evolucion_fitness, yerr=array_bars, errorevery=pasos_intervalos, capsize=3.0, ecolor='black')
+    plt.ylabel("Fitness")
+    plt.xlabel("Generaciones")
+    plt.title("Curva de progreso")
+    plt.ticklabel_format(axis='y', style="sci", scilimits=None)
+    plt.savefig(file_name)
+    plt.show()
+
+def get_pex_for_1(history, success):
+    pex = -1
+    success_idx = np.where(history < success)
+    if np.any(success_idx):
+        pex = success_idx[0][0]
+    return pex 
+
+def get_pex(list_history, success):
+    list_pex = np.array([get_pex_for_1(history, success) for history in list_history])
+    return np.mean(list_pex[list_pex != -1])
+
+def get_te(list_history, success):
+    amount_succes = (np.array(list_history)[:,-1] < success).astype(int)
+    return amount_succes.mean()
+
+def get_vamm(list_best):
+    return np.mean(list_best)
+    
 
 def run_algorithm(alg_name):
     params = {
@@ -49,7 +82,9 @@ def run_algorithm(alg_name):
     cross_op = OperatorReal("CrossInterAvg", {"N": 5})
     # parent_select_op = ParentSelection("Tournament", {"amount": 3, "p":0.1})
     parent_select_op = ParentSelection("Tournament", ParamScheduler("Lineal", {"amount": [2, 7], "p":0.1}))
-    replace_op = SurvivorSelection("(m,n)")
+    replace_op = SurvivorSelection("(m+n)")
+
+    #mutation_operators
 
     if alg_name == "ES":
         alg = ES(objfunc, mutation_op, cross_op, parent_select_op, replace_op, params)
@@ -62,9 +97,8 @@ def run_algorithm(alg_name):
 
     ind, fit = alg.optimize()
     print('Best individual: ',ind)
-    list_history = np.array(alg.history)
-    success_idx = np.where(list_history < params["success"])
-    print('Aprox. PEX: ', success_idx[0][0] * alg.time_spent/len(list_history))
+    pex = get_pex_for_1(np.array(alg.history), params["success"])
+    print('Pex: ',pex)
     alg.display_report()
 
 
