@@ -85,25 +85,31 @@ def gaussian(vector, strength):
 def uniform(vector, low, up):
     return randNoise(vector, {"method":"Uniform", "Low":low, "Up":up})
 
-def crossDiscrete(vector, population, n, is_sigma=False):
+def crossDiscrete(vector, population, n, is_sigma=False, is_1stepsize=False):
     result = np.copy(vector)
-    other_parents = np.random.choice(population, n-1, replace=False)
-    discretization = np.random.randint(0,n,len(vector)) - 1
+    other_parents_idx = np.random.choice(np.arange(len(population)), n-1, replace=False)
+    other_parents = list(np.array(population)[other_parents_idx])
     for i in np.arange(n-1):
         if is_sigma:
-            result[discretization==i] = other_parents[i][discretization==i]
+            if is_1stepsize:
+                result = other_parents[0]
+            else:
+                discretization = np.random.randint(0,n,len(vector)) - 1
+                result[discretization==i] = other_parents[i][discretization==i]
         else:
+            discretization = np.random.randint(0,n,len(vector)) - 1
             result[discretization==i] = other_parents[i].vector[discretization==i]
     return result
 
 
 def crossInterAvg(vector, population, n, is_sigma=False):
-    other_parents = np.random.choice(population, n-1, replace=False)
+    other_parents_idx = np.random.choice(np.arange(len(population)), n-1, replace=False)
+    other_parents = list(np.array(population)[other_parents_idx])
     if is_sigma:
-        parent = list(other_parents)
+        parents = list(other_parents)
     else:
         parents = [parent.vector for parent in other_parents]
-    parents.append(vector)
+        parents.append(vector)
     return np.mean(parents, axis=0)
     
 

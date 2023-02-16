@@ -102,10 +102,13 @@ class ESPopulation:
         parent_list = self.parent_sel_op(self.population)
 
         self.offspring = []
+        self.offspring_sigmas = []
+        #print('Sigmas: ', self.sigmas)
         for i in range(self.n_offspring):
             parent_idx = np.random.choice(np.arange(self.size))
             parent1 = parent_list[parent_idx]
-            self.offspring_sigmas.append(self.cross_op(parent1, parent_list, self.objfunc, self.sigmas, parent_idx))
+            #print('Iteration: ',i)
+            self.offspring_sigmas.append(np.array(self.cross_op(parent1, parent_list, self.objfunc, self.sigmas, parent_idx, (self.sigma_type=="1stepsize"))))
             new_solution = self.objfunc.check_bounds(self.cross_op(parent1, parent_list, self.objfunc))
             new_ind = Indiv(self.objfunc, new_solution)
             self.offspring.append(Indiv(self.objfunc, new_solution))
@@ -115,7 +118,7 @@ class ESPopulation:
     """
     def mutate(self):
         for idx, ind in enumerate(self.offspring):
-            self.offspring_sigmas[idx] = self.mutate_sigma(self.offspring_sigmas[idx])
+            self.offspring_sigmas[idx] = np.array(self.mutate_sigma(self.offspring_sigmas[idx]))
             new_solution = self.objfunc.check_bounds(self.mutation_op(ind, self.population, self.objfunc, self.offspring_sigmas, idx))
             self.offspring[idx] = Indiv(self.objfunc, new_solution)
             
@@ -134,5 +137,5 @@ class ESPopulation:
     Removes the worse solutions of the population
     """
     def selection(self):
-        self.population, self.sigmas = self.replace_op(self.population, self.offspring, self.sigmas, self.offspring_sigmas)
+        [self.population, self.sigmas] = self.replace_op(self.population, self.offspring, self.sigmas, self.offspring_sigmas)
 

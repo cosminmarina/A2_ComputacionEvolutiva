@@ -15,7 +15,7 @@ class OperatorReal(Operator):
         self.name = name
         super().__init__(self.name, params)
     
-    def evolve(self, solution, population, objfunc, sigmas=None, pos=0):
+    def evolve(self, solution, population, objfunc, sigmas=None, pos=0, is_1stepsize=False):
         """
         Evolves a solution with a different strategy depending on the type of operator
         """
@@ -32,11 +32,17 @@ class OperatorReal(Operator):
             result = multiCross(solution.vector.copy(), others, self.params["N"])
         elif self.name == "CrossDiscrete":
             if sigmas:
-                result = crossDiscrete(sigmas[pos].copy(), sigmas, self.params["N"])
+                # print('\n Sigmas in operator: ',sigmas)
+                # print('\n Pos: ',pos)
+                # print('\n Sigmas[pos]: ',sigmas[pos])
+                result = crossDiscrete(sigmas[pos].copy(), sigmas, self.params["N"], is_sigma=True, is_1stepsize=is_1stepsize)
             else:
                 result = crossDiscrete(solution.vector.copy(), others, self.params["N"])
         elif self.name == "CrossInterAvg":
-            result = crossInterAvg(solution.vector.copy(), others, self.params["N"])
+            if sigmas:
+                result = crossInterAvg(sigmas[pos].copy(), sigmas, self.params["N"], is_sigma=True)
+            else:
+                result = crossInterAvg(solution.vector.copy(), others, self.params["N"])
         elif self.name == "Perm":
             result = permutation(solution.vector.copy(), self.params["N"])
         elif self.name == "Gauss":

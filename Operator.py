@@ -34,12 +34,12 @@ class Operator(ABC):
         else:
             self.params = params
     
-    def __call__(self, solution, population, objfunc, sigmas=None, pos=0):
+    def __call__(self, solution, population, objfunc, sigmas=None, pos=0, is_1stepsize=False):
         """
         A shorthand for calling the 'evolve' method
         """
 
-        return self.evolve(solution, population, objfunc, sigmas, pos)
+        return self.evolve(solution, population, objfunc, sigmas, pos, is_1stepsize)
     
     def step(self, progress):
         """
