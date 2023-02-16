@@ -88,6 +88,7 @@ if __name__ == "__main__":
         ax.plot_surface(x, x, z)
         plt.savefig('./figures/sum_powell_n2_sample.png')
         #plt.show()
+        x = np.linspace(-10,10,100)
         obj_n4_XinSheYang = N4XinSheYang(2)
         fig = plt.figure()
         ax = plt.axes(projection ='3d')
