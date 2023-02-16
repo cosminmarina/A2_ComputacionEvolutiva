@@ -44,21 +44,21 @@ def get_vamm(list_best):
 def run_algorithm(alg_name):
     params = {
         # Population-based
-        "popSize": 100,
+        "popSize": 70,
 
         # Genetic algorithm
         "pmut": 0.2,
         "pcross":0.9,
 
         # Evolution strategy
-        "offspringSize":500,
+        "offspringSize":400,
         "sigma_type":"nstepsize",
         #"tau":1/np.sqrt(10),
 
         # General
         "stop_cond": "ngen",
         "time_limit": 20.0,
-        #"Ngen": 200,
+        "Ngen": 1500,
         "Neval": 1e5,
         "fit_target": 1000,
 
@@ -67,7 +67,7 @@ def run_algorithm(alg_name):
         "interval_steps":50,
 
         # Metrics
-        "success":15
+        "success":1e-38
     }
 
     operators = [
@@ -91,19 +91,22 @@ def run_algorithm(alg_name):
     parent_select_op = ParentSelection("Nothing")#, ParamScheduler("Lineal", {"amount": [2, 7], "p":0.1}))
     replace_op = SurvivorSelection("(m+n)")
 
-    list_ngen = [
-        1000,
-        1200,
-        1500
+    list_epsilon = [
+        #"1stepsize",
+        #"nstepsize"
+        1e-10,
+        1e-17,
+        1e-25
     ]
     #mutation_operators 
     for objfunc in list_objfunc:
         metrics_list = []
-        for ngen in list_ngen:
-            params["Ngen"]=ngen
+        for epsilon in list_epsilon:
+            params["epsilon"]=epsilon
             list_history = []
             list_best = []
             for i in range(5):
+                objfunc.counter = 0
                 if alg_name == "ES":
                     alg = ES(objfunc, mutation_op, cross_op, parent_select_op, replace_op, params)
                 elif alg_name == "DE":
@@ -123,9 +126,10 @@ def run_algorithm(alg_name):
             metrics_list.append([pex, vamm, te])
             mean_history = list_history.mean(axis=0)
             std_history = list_history.std(axis=0)
-            generar_curva_progreso(mean_history, std_history, params["interval_steps"], params["Ngen"], f'./figures/studing-ngen{params["Ngen"]}-function{objfunc}-pex{pex}-vamm{vamm}-te{te}.png')
-        metrics_df = pd.DataFrame(np.array(metrics_list), index=[list_ngen], columns=['pex','vamm','te'])
-        metrics_df.to_csv(f'./comparison-csv/metrics-objfunc{objfunc}-ngen.csv')
+            generar_curva_progreso(mean_history, std_history, params["interval_steps"], params["Ngen"], f'./figures/studing-epsilon{params["epsilon"]}-function{objfunc.name}-pex{pex}-vamm{vamm}-te{te}.png')
+        metrics_df = pd.DataFrame(np.array(metrics_list), index=[list_epsilon], columns=['pex','vamm','te'])
+        metrics_df.to_csv(f'./comparison-csv/metrics-objfunc{objfunc.name}-epsilon.csv')
+        params["success"]=0.000165
 
 def main():
     parser = argparse.ArgumentParser()
