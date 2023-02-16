@@ -20,7 +20,7 @@ def generar_curva_progreso(evolucion_fitness, array_bars, pasos_intervalos, ngen
     plt.title("Curva de progreso")
     plt.ticklabel_format(axis='y', style="sci", scilimits=None)
     plt.savefig(file_name)
-    plt.show()
+    #plt.show()
 
 def get_pex_for_1(history, success):
     pex = -1
@@ -64,7 +64,7 @@ def run_algorithm(alg_name):
 
         "verbose": False,
         "v_timer": 0.5,
-        "intervale_steps":50,
+        "interval_steps":50,
 
         # Metrics
         "success":15
@@ -115,19 +115,17 @@ def run_algorithm(alg_name):
                 ind, fit = alg.optimize()
                 list_history.append(alg.history)
                 list_best.append(alg.best_solution()[1])
-                print('Best individual: ',ind)
-                pex = get_pex_for_1(np.array(alg.history), params["success"])
-                print('Pex: ',pex)
-                #alg.display_report()
+                alg.display_report(show_plots=False)
+            list_history = np.array(list_history)
             pex = get_pex(list_history, params["success"])
             vamm = get_vamm(list_best)
             te = get_te(list_history, params["success"])
             metrics_list.append([pex, vamm, te])
-            mean_history = (np.array(list_history)).mean(axis=0)
-            std_history = (np.array(list_history)).std(axis=0)
-            generar_curva_progreso(mean_history, std_history, params["intervale_steps"], params["Ngen"], f'studing-ngen{params["Ngen"]}-function{objfunc}-pex{pex}-vamm{vamm}-te{te}.png')
+            mean_history = list_history.mean(axis=0)
+            std_history = list_history.std(axis=0)
+            generar_curva_progreso(mean_history, std_history, params["interval_steps"], params["Ngen"], f'./figures/studing-ngen{params["Ngen"]}-function{objfunc}-pex{pex}-vamm{vamm}-te{te}.png')
         metrics_df = pd.DataFrame(np.array(metrics_list), index=[list_ngen], columns=['pex','vamm','te'])
-        metrics_df.to_csv(f'metrics-objfunc{objfunc}-ngen.csv')
+        metrics_df.to_csv(f'./comparison-csv/metrics-objfunc{objfunc}-ngen.csv')
 
 def main():
     parser = argparse.ArgumentParser()
